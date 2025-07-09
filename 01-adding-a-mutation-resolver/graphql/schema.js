@@ -1,41 +1,11 @@
-const { buildSchema } = require('graphql');
+//const { buildSchema } = require('graphql');  // express-graphpql
+const fs = require('fs');
+const path = require('path');
+const {makeExecutableSchema} = require('@graphql-tools/schema')
+const   resolvers  =require ('./resolvers');
+const typeDefs = fs.readFileSync(path.join(__dirname, 'schema.graphql'), 'utf8');
 
-module.exports = buildSchema(`
-    type Post {
-        _id: ID!
-        title: String!
-        content: String!
-        imageUrl: String!
-        creator: User!
-        createdAt: String!
-        updatedAt: String!
-    }
-
-    type User {
-        _id: ID!
-        name: String!
-        email: String!
-        password: String
-        status: String!
-        posts: [Post!]!
-    }
-
-    input UserInputData {
-        email: String!
-        name: String!
-        password: String!
-    }
-
-    type RootQuery {
-        hello: String
-    }
-
-    type RootMutation {
-        createUser(userInput: UserInputData): User!
-    }
-
-    schema {
-        query: RootQuery
-        mutation: RootMutation
-    }
-`);
+module.exports.graphqlSchema=makeExecutableSchema({
+        typeDefs,
+        resolvers
+    })
