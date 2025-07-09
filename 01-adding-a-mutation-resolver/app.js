@@ -4,12 +4,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
-//var { graphqlHttp } = require("express-graphql")
-const  {createHandler} =require("graphql-http/lib/use/express")
+const { graphqlHTTP } = require('express-graphql');
+
 const graphqlSchema = require('./graphql/schema');
-//const graphqlResolver = require('./graphql/resolvers');
+const graphqlResolver = require('./graphql/resolvers');
 
 const app = express();
+
 const fileStorage= multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'images/'); // Folder where files will be saved
@@ -19,6 +20,7 @@ const fileStorage= multer.diskStorage({
     cb(null, uniqueSuffix + path.extname(file.originalname)); // e.g. 1625155565-123456789.jpg
   }
 });
+
 const fileFilter = (req, file, cb) => {
   if (
     file.mimetype === 'image/png' ||
@@ -49,21 +51,14 @@ app.use((req, res, next) => {
   next();
 });
 
-/* app.use(
+app.use(
   '/graphql',
-  graphqlHttp({
+   graphqlHTTP({
     schema: graphqlSchema,
     rootValue: graphqlResolver,
-    graphiql: true
+    graphiql: true // Enable GraphiQL in the browser
   })
-);  */
-
-app.all(
-    "/graphql",
-    createHandler({
-      schema:graphqlSchema
-    })
-  );
+);
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -72,7 +67,6 @@ app.use((error, req, res, next) => {
   const data = error.data;
   res.status(status).json({ message: message, data: data });
 });
-
 mongoose
   .connect(
      'mongodb+srv://root:root@cluster0.nhepvqi.mongodb.net/blog?retryWrites=true&w=majority&appName=Cluster0'
